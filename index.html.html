@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Konkurssiaalto Suomessa 2020–2025</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background: #080812;
+    min-height: 100vh;
+    color: #e0daf0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 12px 32px;
+  }
+  .header { text-align: center; margin-bottom: 16px; max-width: 720px; }
+  .eyebrow { font-size: 10px; letter-spacing: 5px; color: #ff4422; text-transform: uppercase; margin-bottom: 6px; font-weight: 700; }
+  h1 { font-size: clamp(18px, 3.5vw, 30px); font-weight: 900; color: #fff; line-height: 1.1; }
+  .subtitle { color: #7070a0; font-size: 12px; margin-top: 5px; }
+  .story-box {
+    background: rgba(255,68,34,0.08);
+    border: 1px solid rgba(255,68,34,0.25);
+    border-radius: 12px;
+    padding: 12px 20px;
+    margin-bottom: 16px;
+    max-width: 680px;
+    width: 100%;
+    text-align: center;
+  }
+  .story-label { font-size: 13px; font-weight: 700; color: #ff6644; margin-bottom: 4px; }
+  .story-desc { font-size: 12px; color: #b0a8c0; line-height: 1.5; }
+  .main { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 900px; }
+  .map-wrap { position: relative; }
+  svg { max-width: 100%; filter: drop-shadow(0 0 40px rgba(255,44,0,0.08)); }
+  .right-panel { display: flex; flex-direction: column; gap: 12px; min-width: 200px; flex: 1; max-width: 260px; }
+  .panel-box {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 14px 16px;
+  }
+  .panel-title { font-size: 10px; letter-spacing: 3px; color: #666688; text-transform: uppercase; margin-bottom: 10px; }
+  .year-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 10px; border-radius: 8px; cursor: pointer;
+    border: 1px solid transparent; margin-bottom: 4px;
+    transition: all 0.2s;
+  }
+  .year-item:hover { background: rgba(255,68,34,0.06); }
+  .year-item.active { background: rgba(255,68,34,0.12); border-color: rgba(255,68,34,0.3); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .rank-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .rank-name { font-size: 11px; color: #9090b0; }
+  .rank-vals { text-align: right; }
+  .legend-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-label { font-size: 11px; color: #7070a0; }
+  .controls { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; max-width: 600px; }
+  input[type=range] { width: 100%; accent-color: #ff4422; cursor: pointer; }
+  .btn-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  button {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
+    color: #8080a0;
+    border-radius: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  button:hover { background: rgba(255,255,255,0.08); }
+  #btn-play { padding: 9px 28px; background: rgba(255,68,34,0.08); border: 1px solid rgba(255,68,34,0.5); color: #ff6644; font-weight: 700; }
+  #btn-play.playing { background: rgba(255,68,34,0.2); }
+  #btn-restart { background: rgba(255,68,34,0.1); border: 1px solid rgba(255,68,34,0.4); color: #ff6644; }
+  .footer-note { margin-top: 20px; max-width: 640px; text-align: center; color: #333355; font-size: 10px; line-height: 1.6; }
+  .tooltip {
+    position: fixed;
+    background: rgba(8,8,20,0.97);
+    border-radius: 10px;
+    padding: 12px 16px;
+    pointer-events: none;
+    z-index: 200;
+    display: none;
+    min-width: 180px;
+  }
+  .tt-name { font-weight: 800; font-size: 13px; margin-bottom: 6px; }
+  .tt-row { display: flex; justify-content: space-between; gap: 16px; font-size: 11px; margin-top: 3px; }
+  .tt-label { color: #7070a0; }
+  .tt-val { font-weight: 700; }
+  .tt-origin { font-size: 10px; color: #ff4422; margin-top: 5px; }
+  .tt-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 6px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Konkurssien leviäminen · Itä → Länsi</div>
+  <h1>Konkurssiaalto Suomessa 2020–2025</h1>
+  <p class="subtitle">Indeksi 100 = alueen oma lähtötaso 2020 · Vie hiiri ympyrän päälle nähdäksesi arvioidut kappalemäärät</p>
+</div>
+
+<div class="story-box">
+  <div class="story-label" id="story-label"></div>
+  <div class="story-desc" id="story-desc"></div>
+</div>
+
+<div class="main">
+  <div class="map-wrap">
+    <svg id="map-svg" width="480" height="560" viewBox="140 100 340 470"></svg>
+  </div>
+
+  <div class="right-panel">
+    <div class="panel-box">
+      <div class="panel-title">Aikajana</div>
+      <div id="year-timeline"></div>
+    </div>
+    <div class="panel-box">
+      <div class="panel-title" id="rank-title">Pahin tilanne</div>
+      <div id="rank-list"></div>
+    </div>
+    <div class="panel-box" style="background:rgba(255,255,255,0.02);border:none;">
+      <div class="panel-title">Muutos lähtötasosta</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#4a9a4a"></div><span class="legend-label">&lt; +5%</span></div>
+      <div class="legend-row"><div class="legend-dot" style="background:#c8a800"></div><span class="legend-label">+5–40%</span></div>
+      <div class="legend-row"><div class="legend-dot" style="background:#e07020"></div><span class="legend-label">+40–80%</span></div>
+      <div class="legend-row"><div class="legend-dot" style="background:#ff5533"></div><span class="legend-label">+80–220%</span></div>
+      <div class="legend-row"><div class="legend-dot" style="background:#ff2200"></div><span class="legend-label">+220%+</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <input type="range" id="year-slider" min="0" max="5" value="0">
+  <div class="btn-row">
+    <button id="btn-prev">◀ Edell.</button>
+    <button id="btn-restart">↺ Alusta</button>
+    <button id="btn-play">▶ Toista aalto</button>
+    <button id="btn-next">Seur. ▶</button>
+  </div>
+</div>
+
+<div class="footer-note">
+  Indeksi 100 = alueen oma 2020-taso. Kappalemäärät ovat arvioita Tilastokeskuksen maakuntapainojen perusteella (kansallinen kokonaisdata on tarkka, aluejakauma laskennallinen).
+  Lähteet: Tilastokeskus / PRH avoin data / Aleksanterinliitto.
+</div>
+
+<div class="tooltip" id="tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <hr class="tt-divider">
+  <div class="tt-row"><span class="tt-label">Konkursseja (arvio)</span><span class="tt-val" id="tt-kpl"></span></div>
+  <div class="tt-row"><span class="tt-label">Muutos 2020-tasosta</span><span class="tt-val" id="tt-muutos"></span></div>
+  <div class="tt-row"><span class="tt-label">Indeksi</span><span class="tt-val" id="tt-idx"></span></div>
+  <div class="tt-origin" id="tt-origin"></div>
+</div>
+
+<script>
+// Alueen perusmäärä (arvio 2020-tason konkurssimäärästä)
+// Perustuu kansalliseen 2020-kokonaismäärään (2135) jaettuna maakuntapainoilla
+const REGIONS = [
+  { id:"etela-karjala",     name:"Etelä-Karjala",      cx:385, cy:448, base:38,  idx:[100,85,310,420,380,340], origin:true },
+  { id:"kymenlaakso",       name:"Kymenlaakso",         cx:358, cy:462, base:52,  idx:[100,88,260,370,330,290], origin:true },
+  { id:"etela-savo",        name:"Etelä-Savo",          cx:378, cy:418, base:40,  idx:[100,90,175,310,360,410] },
+  { id:"pohjois-karjala",   name:"Pohjois-Karjala",     cx:405, cy:378, base:48,  idx:[100,92,145,280,320,340] },
+  { id:"paijat-hame",       name:"Päijät-Häme",         cx:333, cy:454, base:68,  idx:[100,95,160,290,350,410] },
+  { id:"pohjoissavo",       name:"Pohjois-Savo",        cx:362, cy:390, base:72,  idx:[100,96,130,220,290,320] },
+  { id:"keski-suomi",       name:"Keski-Suomi",         cx:323, cy:415, base:88,  idx:[100,97,125,210,295,350] },
+  { id:"kanta-hame",        name:"Kanta-Häme",          cx:308, cy:468, base:55,  idx:[100,96,135,225,300,330] },
+  { id:"uusimaa",           name:"Uusimaa",             cx:335, cy:492, base:810, idx:[100,95,140,230,285,310] },
+  { id:"pirkanmaa",         name:"Pirkanmaa",           cx:294, cy:443, base:185, idx:[100,97,120,200,280,360] },
+  { id:"varsinais-suomi",   name:"Varsinais-Suomi",     cx:254, cy:508, base:168, idx:[100,98,118,195,265,315] },
+  { id:"satakunta",         name:"Satakunta",           cx:248, cy:458, base:72,  idx:[100,98,115,185,255,300] },
+  { id:"etela-pohjanmaa",   name:"Etelä-Pohjanmaa",     cx:276, cy:408, base:62,  idx:[100,99,112,180,250,310] },
+  { id:"pohjanmaa",         name:"Pohjanmaa",           cx:257, cy:388, base:58,  idx:[100,99,108,170,240,280] },
+  { id:"keski-pohjanmaa",   name:"Keski-Pohjanmaa",     cx:264, cy:358, base:22,  idx:[100,100,105,155,210,260] },
+  { id:"pohjois-pohjanmaa", name:"Pohjois-Pohjanmaa",   cx:308, cy:328, base:138, idx:[100,99,112,175,240,285] },
+  { id:"kainuu",            name:"Kainuu",              cx:375, cy:308, base:24,  idx:[100,100,108,160,220,340] },
+  { id:"lappi",             name:"Lappi",               cx:328, cy:218, base:58,  idx:[100,100,105,148,195,235] },
+  { id:"ahvenanmaa",        name:"Ahvenanmaa",          cx:210, cy:498, base:8,   idx:[100,100,102,130,165,190] },
+];
+
+const YEARS = [2020,2021,2022,2023,2024,2025];
+const WAVE_STORY = [
+  { label:"Lähtötilanne", desc:"COVID hillitsee konkursseja keinotekoisesti. Itäraja kiinni turisteilta." },
+  { label:"Keinotekoinen rauha", desc:"Valtion tuet pitävät konkurssit matalalla. Itärajan yritykset verissä päin." },
+  { label:"Itäraja sulkeutuu täysin", desc:"Sota alkaa. Etelä-Karjala & Kymenlaakso romahtavat. Aalto lähtee liikkeelle." },
+  { label:"Aalto leviää länteen", desc:"Kerrannaisvaikutus iskee Päijät-Hämeeseen, Uusimaalle ja Keski-Suomeen. 25 v. ennätys." },
+  { label:"Aalto saavuttaa länsirannan", desc:"Pirkanmaa, Varsinais-Suomi ja Pohjanmaa kokevat huippunsa. Itä jo tasaantuu." },
+  { label:"Koko Suomi kyllästetty", desc:"Aalto on kulkenut koko maan läpi. Kainuu ja Etelä-Savo lisääntyivät yli 50%." },
+];
+
+const FINLAND_PATH = "M 310 125 L 322 117 L 337 114 L 350 119 L 361 130 L 366 143 L 373 153 L 381 165 L 388 178 L 391 192 L 395 208 L 398 224 L 400 240 L 398 256 L 394 268 L 406 277 L 414 288 L 417 300 L 419 314 L 418 327 L 415 340 L 411 352 L 407 364 L 408 376 L 412 388 L 411 400 L 406 410 L 399 419 L 393 428 L 389 438 L 391 449 L 388 459 L 381 466 L 373 471 L 365 477 L 356 483 L 347 490 L 341 498 L 334 507 L 325 514 L 316 518 L 306 519 L 296 517 L 286 513 L 277 507 L 270 499 L 265 490 L 260 479 L 255 469 L 251 458 L 248 446 L 243 435 L 237 425 L 232 414 L 229 402 L 230 389 L 234 377 L 237 365 L 239 352 L 237 339 L 234 326 L 232 312 L 231 298 L 234 284 L 238 271 L 243 258 L 246 244 L 246 230 L 244 217 L 242 204 L 244 191 L 249 179 L 255 168 L 261 158 L 266 148 L 271 138 L 276 130 L 283 125 L 292 122 L 302 122 Z";
+
+function idxToColor(idx) {
+  if (idx <= 105) return { fill:"#2a2a4a", stroke:"#444466", text:"#666688" };
+  if (idx <= 140) return { fill:"#1a3a1a", stroke:"#2d6b2d", text:"#4a9a4a" };
+  if (idx <= 180) return { fill:"#3a3000", stroke:"#8a7000", text:"#c8a800" };
+  if (idx <= 240) return { fill:"#3a1a00", stroke:"#b05000", text:"#e07020" };
+  if (idx <= 320) return { fill:"#3a0800", stroke:"#cc2200", text:"#ff5533" };
+  return { fill:"#3a0000", stroke:"#ff0000", text:"#ff3333" };
+}
+function idxToRadius(idx, origin) {
+  const base = origin ? 14 : 10;
+  const scale = Math.min((idx - 100) / 300, 1);
+  return base + scale * 20;
+}
+function kpl(r, yi) {
+  return Math.round(r.base * r.idx[yi] / 100);
+}
+function svgEl(tag, attrs) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const [k,v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+let yearIdx = 0, playing = false, playInterval = null;
+
+function buildStaticSVG() {
+  const svg = document.getElementById("map-svg");
+  for (const y of [150,200,250,300,350,400,450,500,540])
+    svg.appendChild(svgEl("line",{x1:140,y1:y,x2:480,y2:y,stroke:"rgba(255,255,255,0.02)",strokeWidth:1}));
+  svg.appendChild(svgEl("path",{d:FINLAND_PATH,fill:"rgba(255,255,255,0.025)",stroke:"rgba(255,255,255,0.10)",strokeWidth:1.5}));
+
+  const w1 = svgEl("line",{id:"wave1",x1:390,y1:420,x2:310,y2:510,stroke:"rgba(255,100,0,0.15)",strokeWidth:20,"stroke-linecap":"round",opacity:0});
+  const w2 = svgEl("line",{id:"wave2",x1:310,y1:450,x2:260,y2:510,stroke:"rgba(255,100,0,0.12)",strokeWidth:25,"stroke-linecap":"round",opacity:0});
+  const w3 = svgEl("line",{id:"wave3",x1:260,y1:410,x2:230,y2:510,stroke:"rgba(255,100,0,0.10)",strokeWidth:25,"stroke-linecap":"round",opacity:0});
+  svg.appendChild(w1); svg.appendChild(w2); svg.appendChild(w3);
+
+  for (const r of REGIONS) {
+    const g = svgEl("g",{id:"g-"+r.id,style:"cursor:pointer"});
+    const pulse = svgEl("circle",{id:"pulse-"+r.id,cx:r.cx,cy:r.cy,r:10,fill:"none",stroke:"#444",strokeWidth:1.5,opacity:0});
+    const a1 = document.createElementNS("http://www.w3.org/2000/svg","animate");
+    a1.setAttribute("attributeName","r"); a1.setAttribute("values","10;22;10"); a1.setAttribute("dur","1.8s"); a1.setAttribute("repeatCount","indefinite");
+    const a2 = document.createElementNS("http://www.w3.org/2000/svg","animate");
+    a2.setAttribute("attributeName","opacity"); a2.setAttribute("values","0.35;0;0.35"); a2.setAttribute("dur","1.8s"); a2.setAttribute("repeatCount","indefinite");
+    pulse.appendChild(a1); pulse.appendChild(a2);
+    const ring = svgEl("circle",{id:"ring-"+r.id,cx:r.cx,cy:r.cy,r:13,fill:"none",stroke:"rgba(255,68,0,0.6)",strokeWidth:1.5,"stroke-dasharray":"4 3",display:r.origin?"block":"none"});
+    const circle = svgEl("circle",{id:"c-"+r.id,cx:r.cx,cy:r.cy,r:10,fill:"#2a2a4a",fillOpacity:0.85,stroke:"#444466",strokeWidth:1.5});
+    const label = svgEl("text",{id:"t-"+r.id,x:r.cx,y:r.cy+1,"text-anchor":"middle","dominant-baseline":"middle",fill:"#666688",fontSize:7,fontWeight:700,"pointer-events":"none"});
+    g.appendChild(pulse); g.appendChild(ring); g.appendChild(circle); g.appendChild(label);
+    g.addEventListener("mouseenter", e => showTooltip(e, r));
+    g.addEventListener("mousemove", e => moveTooltip(e));
+    g.addEventListener("mouseleave", hideTooltip);
+    svg.appendChild(g);
+  }
+
+  const defs = svgEl("defs",{});
+  const marker = svgEl("marker",{id:"arrowhead",markerWidth:8,markerHeight:6,refX:8,refY:3,orient:"auto"});
+  marker.appendChild(svgEl("polygon",{points:"0 0, 8 3, 0 6",fill:"rgba(255,100,0,0.6)"}));
+  defs.appendChild(marker); svg.appendChild(defs);
+  const arrowG = svgEl("g",{opacity:0.4});
+  const arrow = svgEl("line",{x1:420,y1:440,x2:235,y2:440,stroke:"rgba(255,100,0,0.3)",strokeWidth:1.5,"stroke-dasharray":"6 4","marker-end":"url(#arrowhead)"});
+  const arrowTxt = svgEl("text",{x:325,y:432,"text-anchor":"middle",fill:"rgba(255,120,0,0.5)",fontSize:8,"letter-spacing":1});
+  arrowTxt.textContent = "AALTO";
+  arrowG.appendChild(arrow); arrowG.appendChild(arrowTxt); svg.appendChild(arrowG);
+
+  const yrTxt = svgEl("text",{id:"year-txt",x:310,y:572,"text-anchor":"middle",fill:"rgba(255,68,34,0.5)",fontSize:13,fontWeight:900,"letter-spacing":4});
+  svg.appendChild(yrTxt);
+}
+
+function render() {
+  const story = WAVE_STORY[yearIdx];
+  document.getElementById("story-label").textContent = story.label;
+  document.getElementById("story-desc").textContent = story.desc;
+  document.getElementById("year-txt").textContent = YEARS[yearIdx];
+  document.getElementById("year-slider").value = yearIdx;
+  document.getElementById("rank-title").textContent = "Pahin tilanne " + YEARS[yearIdx];
+
+  document.getElementById("wave1").setAttribute("opacity", yearIdx >= 2 ? Math.min((yearIdx-1)*0.3,0.5) : 0);
+  document.getElementById("wave2").setAttribute("opacity", yearIdx >= 3 ? 0.3 : 0);
+  document.getElementById("wave3").setAttribute("opacity", yearIdx >= 4 ? 0.25 : 0);
+
+  for (const r of REGIONS) {
+    const idx = r.idx[yearIdx];
+    const col = idxToColor(idx);
+    const rad = idxToRadius(idx, r.origin);
+    const c = document.getElementById("c-"+r.id);
+    c.setAttribute("r", rad); c.setAttribute("fill", col.fill); c.setAttribute("stroke", col.stroke);
+    if (r.origin) document.getElementById("ring-"+r.id).setAttribute("r", rad+3);
+    const pulse = document.getElementById("pulse-"+r.id);
+    if (idx > 250) {
+      pulse.setAttribute("opacity", 0.3); pulse.setAttribute("stroke", col.stroke);
+      pulse.querySelector("animate[attributeName='r']").setAttribute("values", `${rad+3};${rad+14};${rad+3}`);
+    } else { pulse.setAttribute("opacity", 0); }
+    const lbl = document.getElementById("t-"+r.id);
+    if (rad > 16) {
+      lbl.textContent = idx; lbl.setAttribute("fill", col.text);
+      lbl.setAttribute("font-size", rad > 22 ? 9 : 7); lbl.setAttribute("display","block");
+    } else { lbl.setAttribute("display","none"); }
+  }
+
+  // Timeline
+  const tl = document.getElementById("year-timeline");
+  tl.innerHTML = "";
+  YEARS.forEach((y, i) => {
+    const div = document.createElement("div");
+    div.className = "year-item" + (i === yearIdx ? " active" : "");
+    const dc = i===yearIdx?"#ff4422":i<yearIdx?"#664422":"#2a2a44";
+    const db = i===yearIdx?"none":i<yearIdx?"1px solid #884422":"1px solid #333355";
+    const tc = i===yearIdx?"#ff6644":i<yearIdx?"#886644":"#555577";
+    const tg = i===yearIdx?"#cc9977":"#333355";
+    div.innerHTML = `<div class="dot" style="background:${dc};border:${db}"></div>
+      <div style="font-size:13px;font-weight:${i===yearIdx?700:400};color:${tc}">${y}</div>
+      <div style="font-size:10px;color:${tg};margin-left:auto">${WAVE_STORY[i].label.split(" ")[0]}</div>`;
+    div.addEventListener("click", () => setYear(i));
+    tl.appendChild(div);
+  });
+
+  // Rank list — nyt näyttää myös kappalemäärät
+  const sorted = [...REGIONS].map(r => ({...r, cur:r.idx[yearIdx], kpl:kpl(r,yearIdx)})).sort((a,b)=>b.cur-a.cur);
+  const rl = document.getElementById("rank-list");
+  rl.innerHTML = "";
+  sorted.slice(0,6).forEach(r => {
+    const col = idxToColor(r.cur);
+    const row = document.createElement("div");
+    row.className = "rank-row";
+    row.innerHTML = `<div class="rank-name">${r.name.replace("Pohjois-","P-").replace("Varsinais-","Vars-")}</div>
+      <div class="rank-vals">
+        <div style="font-size:12px;font-weight:700;color:${col.text}">${r.kpl} kpl</div>
+        <div style="font-size:10px;color:#666688">${r.cur>100?"+"+( r.cur-100)+"%":"—"}</div>
+      </div>`;
+    rl.appendChild(row);
+  });
+
+  document.getElementById("btn-play").textContent = playing ? "⏸ Tauko" : "▶ Toista aalto";
+  document.getElementById("btn-play").classList.toggle("playing", playing);
+}
+
+function setYear(i) { yearIdx = i; render(); }
+
+function showTooltip(e, r) {
+  const idx = r.idx[yearIdx];
+  const col = idxToColor(idx);
+  const konkurssit = kpl(r, yearIdx);
+  const muutos = idx - 100;
+  const tt = document.getElementById("tooltip");
+  tt.style.border = `1px solid ${col.stroke}`;
+  tt.style.boxShadow = `0 4px 24px ${col.stroke}40`;
+  document.getElementById("tt-name").style.color = col.text;
+  document.getElementById("tt-name").textContent = r.name;
+  document.getElementById("tt-kpl").style.color = col.text;
+  document.getElementById("tt-kpl").textContent = `~${konkurssit} kpl`;
+  document.getElementById("tt-muutos").style.color = col.text;
+  document.getElementById("tt-muutos").textContent = muutos > 0 ? `+${muutos}%` : "lähtötaso";
+  document.getElementById("tt-idx").style.color = col.text;
+  document.getElementById("tt-idx").textContent = idx;
+  document.getElementById("tt-origin").textContent = r.origin ? "⚠ Aallon lähtöalue — itäraja" : "";
+  tt.style.display = "block";
+  moveTooltip(e);
+}
+function moveTooltip(e) {
+  const tt = document.getElementById("tooltip");
+  const x = e.clientX + 16;
+  const y = e.clientY - 80;
+  tt.style.left = Math.min(x, window.innerWidth - 210) + "px";
+  tt.style.top = Math.max(10, y) + "px";
+}
+function hideTooltip() { document.getElementById("tooltip").style.display = "none"; }
+
+function startPlay() {
+  playing = true;
+  playInterval = setInterval(() => {
+    if (yearIdx >= YEARS.length-1) { stopPlay(); return; }
+    yearIdx++; render();
+  }, 1800);
+  render();
+}
+function stopPlay() { playing = false; clearInterval(playInterval); render(); }
+
+document.getElementById("btn-play").addEventListener("click", () => playing ? stopPlay() : startPlay());
+document.getElementById("btn-prev").addEventListener("click", () => { stopPlay(); if(yearIdx>0) setYear(yearIdx-1); });
+document.getElementById("btn-next").addEventListener("click", () => { stopPlay(); if(yearIdx<YEARS.length-1) setYear(yearIdx+1); });
+document.getElementById("btn-restart").addEventListener("click", () => { stopPlay(); setYear(0); setTimeout(startPlay,100); });
+document.getElementById("year-slider").addEventListener("input", e => { stopPlay(); setYear(+e.target.value); });
+
+buildStaticSVG();
+render();
+</script>
+</body>
+</html>
